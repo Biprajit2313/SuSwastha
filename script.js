@@ -42,9 +42,14 @@ const healthTips = [
   "Share your dashboard with a clinician to co-create lifestyle nudges.",
 ];
 
-const API_BASE = "http://127.0.0.1:8000";
-const THEME_KEY = "suswastha_theme";
+// Backend API base URL
+const API_BASE =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://127.0.0.1:8000"
+    : "https://suswastha.onrender.com";
 
+const THEME_KEY = "suswastha_theme";
 // ---------- Helpers ----------
 
 function getCurrentUserEmail() {
