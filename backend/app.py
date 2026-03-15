@@ -4,15 +4,17 @@ from typing import List, Optional
 import os
 import hashlib
 import joblib
+
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from backend.db_models import SessionLocal, User, Prediction, init_db
-from backend.utils_save import save_prediction_and_report
-from backend.report_utils import REPORTS_DIR
+from db_models import SessionLocal, User, Prediction, init_db
+from utils_save import save_prediction_and_report
+from report_utils import REPORTS_DIR
+
 # ----------------- FastAPI + CORS -----------------
 
 BASE_DIR = Path(__file__).parent
@@ -20,16 +22,14 @@ MODELS_DIR = BASE_DIR / "models"
 
 app = FastAPI(title="SuSwastha API")
 
-# CORS: in production, set FRONTEND_ORIGINS to a comma-separated list
-# of allowed origins, e.g. "https://suswastha-frontend.example.com".
-cors_origins = [
-    "https://biprajit2313.github.io",
-    "https://biprajit2313.github.io/SuSwastha",
-    "http://localhost",
-    "http://127.0.0.1",
-    "http://localhost:5500",
-    "http://127.0.0.1:5500"
-]
+# CORS:
+# In production, set FRONTEND_ORIGINS to a comma-separated list of allowed origins,
+# e.g. "https://your-username.github.io"
+frontend_origins_env = os.getenv("FRONTEND_ORIGINS", "*")
+if frontend_origins_env.strip() == "*":
+    cors_origins = ["*"]
+else:
+    cors_origins = [o.strip() for o in frontend_origins_env.split(",") if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,
@@ -345,7 +345,10 @@ class LoginPayload(BaseModel):
 
 
 def hash_password(raw: str) -> str:
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    # Enforce non-empty password so DB never sees NULL
+    if not raw or not raw.strip():
+        raise HTTPException(status_code=400, detail="Password is required")
+    return hashlib.sha256(raw.strip().encode("utf-8")).hexdigest()
 
 
 @app.post("/api/signup")
@@ -384,7 +387,7 @@ class UserReportOut(BaseModel):
     pdf_url: Optional[str] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True  # replaces orm_mode=True in Pydantic v2
 
 
 @app.get("/api/user/reports", response_model=List[UserReportOut])
