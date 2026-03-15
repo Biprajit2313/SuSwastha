@@ -42,6 +42,7 @@ const healthTips = [
   "Share your dashboard with a clinician to co-create lifestyle nudges.",
 ];
 
+
 // Backend API base URL
 const API_BASE =
   window.location.hostname === "localhost" ||
@@ -49,6 +50,7 @@ const API_BASE =
     ? "http://127.0.0.1:8000"
     : "https://suswastha.onrender.com";
 
+// Theme key for dark/light mode
 const THEME_KEY = "suswastha_theme";
 // ---------- Helpers ----------
 
