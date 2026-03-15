@@ -49,7 +49,6 @@ const API_BASE =
     ? "http://127.0.0.1:8000"
     : "https://suswastha.onrender.com";
 
-const THEME_KEY = "suswastha_theme";
 // ---------- Helpers ----------
 
 function getCurrentUserEmail() {
