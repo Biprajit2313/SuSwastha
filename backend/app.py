@@ -1,7 +1,6 @@
 from pathlib import Path
 from datetime import date
 from typing import List, Optional
-import os
 import hashlib
 
 import joblib
@@ -22,7 +21,7 @@ MODELS_DIR = BASE_DIR / "models"
 
 app = FastAPI(title="SuSwastha API")
 
-# Allow your GitHub Pages + local dev
+# Allow GitHub Pages + local dev
 cors_origins = [
     "https://biprajit2313.github.io",
     "https://biprajit2313.github.io/SuSwastha",
@@ -41,8 +40,6 @@ app.add_middleware(
 )
 
 
-# ----------------- DB dependency -----------------
-
 def get_db():
     db = SessionLocal()
     try:
@@ -53,7 +50,6 @@ def get_db():
 
 @app.on_event("startup")
 def startup():
-    # ensure tables exist
     init_db()
 
 
@@ -163,15 +159,10 @@ class GenericOutput(BaseModel):
     pdf_url: str
 
 
-# ----------------- Model loader -----------------
-
 def load_model(name: str):
     path = MODELS_DIR / f"{name}.joblib"
     if not path.exists():
-        raise HTTPException(
-            status_code=500,
-            detail=f"Model {name} not found at {path}",
-        )
+        raise HTTPException(status_code=500, detail=f"Model {name} not found at {path}")
     return joblib.load(path)
 
 
@@ -180,158 +171,60 @@ def load_model(name: str):
 @app.post("/api/predict/diabetes", response_model=GenericOutput)
 def predict_diabetes(payload: DiabetesInput):
     model = load_model("diabetes")
-    X = [[
-        payload.glucose,
-        payload.blood_pressure,
-        payload.skin_thickness,
-        payload.insulin,
-        payload.bmi,
-        payload.pedigree,
-        payload.age,
-    ]]
+    X = [[payload.glucose, payload.blood_pressure, payload.skin_thickness, payload.insulin, payload.bmi, payload.pedigree, payload.age]]
     prob = float(model.predict_proba(X)[0][1])
-    result = save_prediction_and_report(
-        "diabetes", payload.email, payload.dict(), prob
-    )
-    return result
+    return save_prediction_and_report("diabetes", payload.email, payload.model_dump(), prob)
 
 
 @app.post("/api/predict/cholesterol", response_model=GenericOutput)
 def predict_cholesterol(payload: CholesterolInput):
     model = load_model("cholesterol")
-    X = [[
-        payload.total_cholesterol,
-        payload.hdl,
-        payload.ldl,
-        payload.triglycerides,
-        payload.age,
-        payload.bmi,
-        payload.blood_pressure,
-        payload.smoking_status,
-        payload.family_history,
-    ]]
+    X = [[payload.total_cholesterol, payload.hdl, payload.ldl, payload.triglycerides, payload.age, payload.bmi, payload.blood_pressure, payload.smoking_status, payload.family_history]]
     prob = float(model.predict_proba(X)[0][1])
-    result = save_prediction_and_report(
-        "cholesterol", payload.email, payload.dict(), prob
-    )
-    return result
+    return save_prediction_and_report("cholesterol", payload.email, payload.model_dump(), prob)
 
 
 @app.post("/api/predict/kidney", response_model=GenericOutput)
 def predict_kidney(payload: KidneyInput):
     model = load_model("kidney")
-    X = [[
-        payload.age,
-        payload.blood_pressure,
-        payload.specific_gravity,
-        payload.albumin,
-        payload.sugar,
-        payload.blood_glucose_random,
-        payload.blood_urea,
-        payload.serum_creatinine,
-        payload.sodium,
-        payload.potassium,
-        payload.hemoglobin,
-        payload.packed_cell_volume,
-        payload.white_blood_cell_count,
-        payload.red_blood_cell_count,
-    ]]
+    X = [[payload.age, payload.blood_pressure, payload.specific_gravity, payload.albumin, payload.sugar, payload.blood_glucose_random, payload.blood_urea, payload.serum_creatinine, payload.sodium, payload.potassium, payload.hemoglobin, payload.packed_cell_volume, payload.white_blood_cell_count, payload.red_blood_cell_count]]
     prob = float(model.predict_proba(X)[0][1])
-    result = save_prediction_and_report(
-        "kidney", payload.email, payload.dict(), prob
-    )
-    return result
+    return save_prediction_and_report("kidney", payload.email, payload.model_dump(), prob)
 
 
 @app.post("/api/predict/liver", response_model=GenericOutput)
 def predict_liver(payload: LiverInput):
     model = load_model("liver")
-    X = [[
-        payload.age,
-        payload.gender,
-        payload.total_bilirubin,
-        payload.direct_bilirubin,
-        payload.alkaline_phosphatase,
-        payload.alt,
-        payload.ast,
-        payload.total_proteins,
-        payload.albumin,
-        payload.ag_ratio,
-    ]]
+    X = [[payload.age, payload.gender, payload.total_bilirubin, payload.direct_bilirubin, payload.alkaline_phosphatase, payload.alt, payload.ast, payload.total_proteins, payload.albumin, payload.ag_ratio]]
     prob = float(model.predict_proba(X)[0][1])
-    result = save_prediction_and_report(
-        "liver", payload.email, payload.dict(), prob
-    )
-    return result
+    return save_prediction_and_report("liver", payload.email, payload.model_dump(), prob)
 
 
 @app.post("/api/predict/heart", response_model=GenericOutput)
 def predict_heart(payload: HeartInput):
     model = load_model("heart")
-    X = [[
-        payload.age,
-        payload.sex,
-        payload.cp,
-        payload.trestbps,
-        payload.chol,
-        payload.fbs,
-        payload.restecg,
-        payload.thalach,
-        payload.exang,
-        payload.oldpeak,
-        payload.slope,
-        payload.ca,
-        payload.thal,
-    ]]
+    X = [[payload.age, payload.sex, payload.cp, payload.trestbps, payload.chol, payload.fbs, payload.restecg, payload.thalach, payload.exang, payload.oldpeak, payload.slope, payload.ca, payload.thal]]
     prob = float(model.predict_proba(X)[0][1])
-    result = save_prediction_and_report(
-        "heart", payload.email, payload.dict(), prob
-    )
-    return result
+    return save_prediction_and_report("heart", payload.email, payload.model_dump(), prob)
 
 
 @app.post("/api/predict/blood_pressure", response_model=GenericOutput)
 def predict_blood_pressure(payload: BloodPressureInput):
     model = load_model("blood_pressure")
-    X = [[
-        payload.systolic,
-        payload.diastolic,
-        payload.age,
-        payload.weight,
-        payload.height,
-        payload.stress_level,
-        payload.activity_level,
-    ]]
+    X = [[payload.systolic, payload.diastolic, payload.age, payload.weight, payload.height, payload.stress_level, payload.activity_level]]
     prob = float(model.predict_proba(X)[0][1])
-    result = save_prediction_and_report(
-        "blood_pressure", payload.email, payload.dict(), prob
-    )
-    return result
+    return save_prediction_and_report("blood_pressure", payload.email, payload.model_dump(), prob)
 
 
 @app.post("/api/predict/thyroid", response_model=GenericOutput)
 def predict_thyroid(payload: ThyroidInput):
     model = load_model("thyroid")
-    X = [[
-        payload.age,
-        payload.sex,
-        payload.tsh,
-        payload.t3,
-        payload.t4,
-        payload.free_t4_index,
-        payload.free_t3_index,
-        payload.medication_status,
-        payload.pregnancy_status,
-        payload.goitre_status,
-    ]]
+    X = [[payload.age, payload.sex, payload.tsh, payload.t3, payload.t4, payload.free_t4_index, payload.free_t3_index, payload.medication_status, payload.pregnancy_status, payload.goitre_status]]
     prob = float(model.predict_proba(X)[0][1])
-    result = save_prediction_and_report(
-        "thyroid", payload.email, payload.dict(), prob
-    )
-    return result
+    return save_prediction_and_report("thyroid", payload.email, payload.model_dump(), prob)
 
 
-# ----------------- Auth (signup / login) -----------------
+# ----------------- Auth -----------------
 
 class SignupPayload(BaseModel):
     name: str
@@ -346,7 +239,6 @@ class LoginPayload(BaseModel):
 
 
 def hash_password(raw: str) -> str:
-    # Prevent NULL password_hash in DB
     if not raw or not raw.strip():
         raise HTTPException(status_code=400, detail="Password is required")
     return hashlib.sha256(raw.strip().encode("utf-8")).hexdigest()
@@ -357,7 +249,6 @@ def signup(payload: SignupPayload, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == payload.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
-
     user = User(
         name=payload.name,
         email=payload.email,
@@ -378,7 +269,7 @@ def login(payload: LoginPayload, db: Session = Depends(get_db)):
     return {"message": "Login successful"}
 
 
-# ----------------- User reports for dashboard -----------------
+# ----------------- User reports -----------------
 
 class UserReportOut(BaseModel):
     test_type: str
@@ -388,7 +279,7 @@ class UserReportOut(BaseModel):
     pdf_url: Optional[str] = None
 
     class Config:
-        from_attributes = True  # Pydantic v2 replacement for orm_mode = True
+        from_attributes = True
 
 
 @app.get("/api/user/reports", response_model=List[UserReportOut])
@@ -400,7 +291,7 @@ def user_reports(email: str, db: Session = Depends(get_db)):
         .limit(20)
         .all()
     )
-    out: List[UserReportOut] = []
+    out = []
     for r in rows:
         out.append(
             UserReportOut(
@@ -414,6 +305,6 @@ def user_reports(email: str, db: Session = Depends(get_db)):
     return out
 
 
-# ----------------- Serve generated PDF reports -----------------
+# ----------------- Serve PDFs -----------------
 
 app.mount("/reports", StaticFiles(directory=str(REPORTS_DIR)), name="reports")
