@@ -10,10 +10,9 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from db_models import SessionLocal, User, Prediction, init_db
-from utils_save import save_prediction_and_report
-from report_utils import REPORTS_DIR
-
+from backend.db_models import SessionLocal, User, Prediction, init_db
+from backend.utils_save import save_prediction_and_report
+from backend.report_utils import REPORTS_DIR
 # ----------------- FastAPI + CORS -----------------
 
 BASE_DIR = Path(__file__).parent
