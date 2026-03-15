@@ -1,9 +1,13 @@
+import hashlib
 import json
 from pathlib import Path
 from typing import Dict
 
 from backend.db_models import SessionLocal, User, Prediction
 from backend.report_utils import generate_pdf_report, send_report_email
+
+# Placeholder hash for users created via prediction (no signup yet). They must sign up to set a real password.
+PENDING_PASSWORD_HASH = hashlib.sha256(b"pending-signup").hexdigest()
 
 def save_prediction_and_report(
     test_type: str,
@@ -39,10 +43,14 @@ def save_prediction_and_report(
     # 3) Save row in DB
     session = SessionLocal()
     try:
-        # ensure user exists
+        # ensure user exists (create with placeholder password if they only ran prediction, not signup)
         user = session.query(User).filter_by(email=email).first()
         if not user:
-            user = User(email=email, name=email.split("@")[0])
+            user = User(
+                email=email,
+                name=email.split("@")[0],
+                password_hash=PENDING_PASSWORD_HASH,
+            )
             session.add(user)
             session.flush()  # get user.id if needed
 
@@ -79,4 +87,3 @@ def save_prediction_and_report(
         "risk_score": risk_percent,
         "pdf_url": f"/reports/{Path(pdf_path).name}",
     }
-
