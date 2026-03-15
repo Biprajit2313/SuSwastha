@@ -22,11 +22,13 @@ app = FastAPI(title="SuSwastha API")
 
 # CORS: in production, set FRONTEND_ORIGINS to a comma-separated list
 # of allowed origins, e.g. "https://suswastha-frontend.example.com".
-frontend_origins_env = os.getenv("FRONTEND_ORIGINS", "*")
-if frontend_origins_env.strip() == "*":
-    cors_origins = ["*"]
-else:
-    cors_origins = [o.strip() for o in frontend_origins_env.split(",") if o.strip()]
+cors_origins = [
+    "https://biprajit2313.github.io",
+    "http://localhost",
+    "http://127.0.0.1",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500"
+]
 
 app.add_middleware(
     CORSMiddleware,
