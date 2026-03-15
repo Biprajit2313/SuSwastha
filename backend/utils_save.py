@@ -2,9 +2,8 @@ import json
 from pathlib import Path
 from typing import Dict
 
-from db_models import SessionLocal, User, Prediction
-from report_utils import generate_pdf_report, send_report_email
-
+from backend.db_models import SessionLocal, User, Prediction
+from backend.report_utils import generate_pdf_report, send_report_email
 
 def save_prediction_and_report(
     test_type: str,
