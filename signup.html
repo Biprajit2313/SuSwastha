@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up | SuSwastha</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="auth-layout">
+    <section class="auth-visual">
+      <h1>Join SuSwastha</h1>
+      <p>
+        Centralize your health tests, get AI-driven insights, and share reports
+        securely with your physician.
+      </p>
+      <img
+        src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1400&q=80"
+        alt="Healthcare team guiding a patient through onboarding"
+      />
+    </section>
+
+    <section class="auth-panel">
+      <a href="index.html" class="btn ghost">← Back to Home</a>
+      <div>
+        <p class="eyebrow">Create account</p>
+        <h2>Start monitoring your health</h2>
+      </div>
+
+      <form id="signup-form">
+        <label>
+          Full name
+          <input type="text" name="name" required />
+        </label>
+
+        <label>
+          Email
+          <input type="email" name="email" required />
+        </label>
+
+        <label>
+          Date of Birth
+          <input type="date" name="dob" required />
+        </label>
+
+        <label>
+          Password
+          <input type="password" name="password" required />
+        </label>
+
+        <button type="submit" class="btn primary">Sign Up</button>
+      </form>
+
+      <p>
+        Already have an account?
+        <a href="login.html">Login</a>
+      </p>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
+</html>

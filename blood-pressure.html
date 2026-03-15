@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blood Pressure Checker | SuSwastha</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="module-page">
+    <header class="module-header">
+      <div class="logo">SuSwastha</div>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="tests.html">Health Tests</a>
+        <a href="reports.html">Reports</a>
+        <a href="report-history.html">History</a>
+        <a href="contact-about.html">Contact</a>
+        <a href="admin.html">Admin</a>
+      </nav>
+      <div class="module-actions">
+        <a class="btn ghost" href="login.html">Login</a>
+        <a class="btn primary" href="signup.html">Sign Up</a>
+      </div>
+    </header>
+
+    <main class="test-main">
+      <section class="test-info">
+        <a class="back-link" href="tests.html">← Back to Test Options</a>
+        <p class="eyebrow">Hypertension Screening</p>
+        <h1>Understand your BP stage and lifestyle risks</h1>
+        <p>
+          Combine home BP readings with lifestyle markers to interpret whether
+          you fall in normal, pre-hypertension, or hypertensive ranges.
+        </p>
+        <img
+          src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=1400&q=80"
+          alt="Nurse checking blood pressure"
+        />
+      </section>
+      <section class="test-form-card">
+        <h2>Input your values</h2>
+        <form class="test-form">
+          <label>
+            Systolic BP (mm Hg)
+            <input type="number" placeholder="e.g., 128" />
+          </label>
+          <label>
+            Diastolic BP (mm Hg)
+            <input type="number" placeholder="e.g., 82" />
+          </label>
+          <label>
+            Age
+            <input type="number" placeholder="e.g., 45" />
+          </label>
+          <label>
+            Weight (kg)
+            <input type="number" placeholder="e.g., 78" />
+          </label>
+          <label>
+            Height (cm)
+            <input type="number" placeholder="e.g., 175" />
+          </label>
+          <label>
+            Stress Level
+            <select>
+              <option>Low</option>
+              <option>Moderate</option>
+              <option>High</option>
+            </select>
+          </label>
+          <label>
+            Physical Activity Level
+            <select>
+              <option>Sedentary</option>
+              <option>Light</option>
+              <option>Moderate</option>
+              <option>Intense</option>
+            </select>
+          </label>
+          <label>
+            Smoking Status
+            <select>
+              <option>Non-smoker</option>
+              <option>Former smoker</option>
+              <option>Current smoker</option>
+            </select>
+          </label>
+          <label>
+            Alcohol Intake
+            <select>
+              <option>None</option>
+              <option>Occasional</option>
+              <option>Weekly</option>
+              <option>Daily</option>
+            </select>
+          </label>
+          <button type="submit" class="btn primary">Run Prediction</button>
+        </form>
+        <div class="output-box">
+          <h3>Results preview</h3>
+          <p>Status: Normal / Pre-hypertension / Stage 1 / Stage 2</p>
+          <p>Heart Risk Level: Low / Moderate / Elevated</p>
+          <p>Lifestyle changes: Salt control, relaxation, activity planning.</p>
+        </div>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
+
