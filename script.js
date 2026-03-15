@@ -42,7 +42,6 @@ const healthTips = [
   "Share your dashboard with a clinician to co-create lifestyle nudges.",
 ];
 
-
 // Backend API base URL
 const API_BASE =
   window.location.hostname === "localhost" ||
@@ -52,6 +51,7 @@ const API_BASE =
 
 // Theme key for dark/light mode
 const THEME_KEY = "suswastha_theme";
+
 // ---------- Helpers ----------
 
 function getCurrentUserEmail() {
@@ -438,6 +438,7 @@ function setupTestPrediction() {
 
     try {
       outputBox.innerHTML = "<p>Running prediction...</p>";
+      outputBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
       const response = await fetch(`${API_BASE}/api/predict/${testType}`, {
         method: "POST",
@@ -445,16 +446,31 @@ function setupTestPrediction() {
         body: JSON.stringify(payload),
       });
 
+      const rawText = await response.text();
       if (!response.ok) {
-        const errText = await response.text();
-        console.error(errText);
-        throw new Error("Backend error");
+        console.error(rawText);
+        outputBox.innerHTML = `
+          <h3>Prediction failed</h3>
+          <p>Server error (${response.status}). Check console for details.</p>
+        `;
+        return;
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (parseErr) {
+        console.error("Response was not JSON:", rawText);
+        outputBox.innerHTML = `
+          <h3>Prediction failed</h3>
+          <p>Invalid response from server. Check console.</p>
+        `;
+        return;
+      }
 
       const labelText = data.label || data.status || "N/A";
-      const riskScore = data.risk_score != null ? data.risk_score.toFixed(1) : null;
+      const riskNum = Number(data.risk_score);
+      const riskScore = Number.isFinite(riskNum) ? riskNum.toFixed(1) : null;
 
       let pdfLinkHtml = "";
       if (data.pdf_url) {
@@ -469,15 +485,16 @@ function setupTestPrediction() {
       outputBox.innerHTML = `
         <h3>Prediction result</h3>
         <p><strong>Status:</strong> ${labelText}</p>
-        ${riskScore ? `<p><strong>Risk Score:</strong> ${riskScore}%</p>` : ""}
+        ${riskScore != null ? `<p><strong>Risk Score:</strong> ${riskScore}%</p>` : ""}
         ${data.message ? `<p>${data.message}</p>` : ""}
         ${pdfLinkHtml}
       `;
+      outputBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } catch (err) {
       console.error(err);
       outputBox.innerHTML = `
         <h3>Prediction failed</h3>
-        <p>Could not connect to the server. Make sure the backend (FastAPI) is running.</p>
+        <p>${err.message || "Could not connect to the server. Make sure the backend (FastAPI) is running."}</p>
       `;
     }
   });
