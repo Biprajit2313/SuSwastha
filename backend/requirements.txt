@@ -6,4 +6,4 @@ joblib
 reportlab
 pydantic
 python-multipart
-
+scikit-learn
