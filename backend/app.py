@@ -24,6 +24,7 @@ app = FastAPI(title="SuSwastha API")
 # of allowed origins, e.g. "https://suswastha-frontend.example.com".
 cors_origins = [
     "https://biprajit2313.github.io",
+    "https://biprajit2313.github.io/SuSwastha",
     "http://localhost",
     "http://127.0.0.1",
     "http://localhost:5500",
