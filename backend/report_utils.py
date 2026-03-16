@@ -2,9 +2,6 @@ from pathlib import Path
 from datetime import datetime
 import os
 
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-
 import smtplib
 from email.message import EmailMessage
 
@@ -21,6 +18,10 @@ def generate_pdf_report(
     label: str,
     risk_score: float,
 ) -> str:
+    # Lazy import so the API can still start even if reportlab isn't installed yet.
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     safe_email = user_email.replace("@", "_at_").replace(".", "_")
     filename = f"{safe_email}_{test_type}_{ts}.pdf"
@@ -96,6 +97,10 @@ def send_report_email(
     """
     Send the generated PDF report as an email attachment to the user.
     """
+    # If SMTP isn't configured, skip emailing (prediction should still succeed).
+    if not SMTP_USER or not SMTP_PASS:
+        return
+
     msg = EmailMessage()
     msg["Subject"] = subject
     msg["From"] = SMTP_USER
