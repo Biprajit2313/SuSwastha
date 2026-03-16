@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 import os
 from sqlalchemy import (
     create_engine, Column, Integer, String, DateTime, Text, Float, Date
@@ -7,15 +8,18 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Database URL can be overridden via environment variable for deployment.
-# For production, always set DATABASE_URL to your managed MySQL instance, e.g.:
-#   mysql+mysqlconnector://user:password@host:3306/suswastha
-MYSQL_URL = os.getenv(
-    "DATABASE_URL",
-    "mysql+mysqlconnector://sus_user:StrongPassword123@localhost:3306/suswastha",
-)
+# If DATABASE_URL is not set, default to local SQLite for easy dev (no MySQL needed).
+DEFAULT_SQLITE_PATH = (Path(__file__).parent / "suswastha.db").resolve()
+DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_SQLITE_PATH.as_posix()}")
 
 # pool_pre_ping=True helps avoid stale connections on managed MySQL services.
-engine = create_engine(MYSQL_URL, pool_recycle=3600, pool_pre_ping=True)
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(
+    DATABASE_URL,
+    pool_recycle=3600,
+    pool_pre_ping=True,
+    connect_args=connect_args,
+)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 Base = declarative_base()
