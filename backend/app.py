@@ -18,8 +18,8 @@ from backend.report_utils import REPORTS_DIR
 # ----------------- FastAPI + CORS -----------------
 
 BASE_DIR = Path(__file__).parent
-# Models live at project root /models (sibling of /backend)
-MODELS_DIR = BASE_DIR.parent / "models"
+# Models live in backend/models inside the repo
+MODELS_DIR = BASE_DIR / "models"
 
 app = FastAPI(title="SuSwastha API")
 
