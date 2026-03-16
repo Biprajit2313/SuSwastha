@@ -32,13 +32,18 @@ def save_prediction_and_report(
     label = "High Risk" if prob >= threshold else "Low Risk"
 
     # 2) Generate PDF report file
-    pdf_path = generate_pdf_report(
-        user_email=email,
-        test_type=test_type,
-        inputs=inputs,
-        label=label,
-        risk_score=risk_percent,
-    )
+    pdf_path = None
+    try:
+        pdf_path = generate_pdf_report(
+            user_email=email,
+            test_type=test_type,
+            inputs=inputs,
+            label=label,
+            risk_score=risk_percent,
+        )
+    except Exception as e:
+        # Keep prediction fast/usable even if PDF generation fails (e.g., missing deps).
+        print("Failed to generate PDF report:", e)
 
     # 3) Save row in DB
     session = SessionLocal()
@@ -60,7 +65,7 @@ def save_prediction_and_report(
             raw_input=json.dumps(inputs),
             label=label,
             risk_score=risk_percent,
-            pdf_path=str(pdf_path),
+            pdf_path=str(pdf_path) if pdf_path else None,
         )
         session.add(pred)
         session.commit()
@@ -73,11 +78,12 @@ def save_prediction_and_report(
     # 4) Try to email the PDF to the user
     # (if SMTP config is wrong, we just log and still return success)
     try:
-        send_report_email(
-            to_email=email,
-            pdf_path=pdf_path,
-            subject=f"{test_type.title()} report from SuSwastha",
-        )
+        if pdf_path:
+            send_report_email(
+                to_email=email,
+                pdf_path=pdf_path,
+                subject=f"{test_type.title()} report from SuSwastha",
+            )
     except Exception as e:
         print("Failed to send report email:", e)
 
@@ -85,5 +91,6 @@ def save_prediction_and_report(
     return {
         "label": label,
         "risk_score": risk_percent,
-        "pdf_url": f"/reports/{Path(pdf_path).name}",
+        "pdf_url": f"/reports/{Path(pdf_path).name}" if pdf_path else "",
     }
+
