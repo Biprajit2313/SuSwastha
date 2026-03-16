@@ -440,11 +440,17 @@ function setupTestPrediction() {
       outputBox.innerHTML = "<p>Running prediction...</p>";
       outputBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
+      const controller = new AbortController();
+      const timeoutMs = 20000;
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
       const response = await fetch(`${API_BASE}/api/predict/${testType}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       const rawText = await response.text();
       if (!response.ok) {
@@ -492,6 +498,16 @@ function setupTestPrediction() {
       outputBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } catch (err) {
       console.error(err);
+      if (err?.name === "AbortError") {
+        outputBox.innerHTML = `
+          <h3>Prediction timed out</h3>
+          <p>
+            The server took too long to respond (>${timeoutMs / 1000}s).
+            If you're running locally, make sure the backend is running at <code>${API_BASE}</code>.
+          </p>
+        `;
+        return;
+      }
       outputBox.innerHTML = `
         <h3>Prediction failed</h3>
         <p>${err.message || "Could not connect to the server. Make sure the backend (FastAPI) is running."}</p>
