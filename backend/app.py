@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import date
 from typing import List, Optional
 import hashlib
+from functools import lru_cache
 
 import joblib
 from fastapi import FastAPI, HTTPException, Depends
@@ -17,7 +18,8 @@ from backend.report_utils import REPORTS_DIR
 # ----------------- FastAPI + CORS -----------------
 
 BASE_DIR = Path(__file__).parent
-MODELS_DIR = BASE_DIR / "models"
+# Models live at project root /models (sibling of /backend)
+MODELS_DIR = BASE_DIR.parent / "models"
 
 app = FastAPI(title="SuSwastha API")
 
@@ -159,6 +161,7 @@ class GenericOutput(BaseModel):
     pdf_url: str
 
 
+@lru_cache(maxsize=32)
 def load_model(name: str):
     path = MODELS_DIR / f"{name}.joblib"
     if not path.exists():
