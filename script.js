@@ -49,6 +49,10 @@ const API_BASE =
     ? "http://127.0.0.1:8000"
     : "https://suswastha.onrender.com";
 
+const USERS_KEY = "suswastha_users";
+const REPORTS_KEY = "suswastha_reports";
+const OTP_STORE_KEY = "suswastha_pending_otps";
+
 // Theme key for dark/light mode
 const THEME_KEY = "suswastha_theme";
 
@@ -75,6 +79,50 @@ function getCurrentUserProfile() {
 
 function setCurrentUserProfile(profile) {
   localStorage.setItem("suswastha_profile", JSON.stringify(profile));
+}
+
+function validEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email || "").trim());
+}
+
+function validPassword(password) {
+  return /^(?=.*\d).{6,}$/.test(password || "");
+}
+
+function getUsers() {
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function setUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function getReports() {
+  try {
+    return JSON.parse(localStorage.getItem(REPORTS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function getReportsForEmail(email) {
+  return getReports().filter((report) => report.email === email);
+}
+
+function getOtpStore() {
+  try {
+    return JSON.parse(localStorage.getItem(OTP_STORE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function setOtpStore(store) {
+  localStorage.setItem(OTP_STORE_KEY, JSON.stringify(store));
 }
 
 // ---------- Scroll animations ----------
@@ -522,73 +570,149 @@ function setupAuthForms() {
   // Signup
   const signupForm = document.querySelector("form#signup-form");
   if (signupForm) {
-    signupForm.addEventListener("submit", async (e) => {
+    const signupError = document.getElementById("signup-error");
+    const sendSignupOtpBtn = document.getElementById("send-signup-otp");
+    const setSignupError = (message, ok = false) => {
+      if (!signupError) return;
+      signupError.textContent = message || "";
+      signupError.style.color = ok ? "#0c8a43" : "#d93025";
+    };
+
+    if (sendSignupOtpBtn) {
+      sendSignupOtpBtn.addEventListener("click", () => {
+        const formData = new FormData(signupForm);
+        const name = String(formData.get("name") || "").trim();
+        const email = String(formData.get("email") || "").trim().toLowerCase();
+        const password = String(formData.get("password") || "");
+        const dob = String(formData.get("dob") || "");
+
+        if (!name || !dob) return setSignupError("Name and date of birth are required.");
+        if (!validEmail(email)) return setSignupError("Enter a valid email address.");
+        if (!validPassword(password)) {
+          return setSignupError("Password must be at least 6 chars and include a number.");
+        }
+        const existingUser = getUsers().find((user) => user.email === email);
+        if (existingUser) return setSignupError("Email already exists. Please login.");
+
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+        const otpStore = getOtpStore();
+        otpStore[email] = {
+          otp,
+          purpose: "signup",
+          expiresAt: Date.now() + 5 * 60 * 1000,
+          payload: { name, email, password, dob },
+        };
+        setOtpStore(otpStore);
+        console.log(`[SuSwastha OTP][SIGNUP] ${email}: ${otp}`);
+        setSignupError("OTP generated (check browser console).", true);
+      });
+    }
+
+    signupForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const formData = new FormData(signupForm);
-      const name = formData.get("name");
-      const email = formData.get("email");
-      const password = formData.get("password");
-      const dob = formData.get("dob");
+      const email = String(formData.get("email") || "").trim().toLowerCase();
+      const otp = String(formData.get("otp") || "").trim();
 
-      try {
-        const res = await fetch(`${API_BASE}/api/signup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password, dob }),
-        });
-          if (!res.ok) {
-          const msg = await res.text();
-          alert("Signup failed: " + msg);
-          return;
-        }
+      if (!validEmail(email)) return setSignupError("Enter a valid email address.");
+      if (!/^\d{6}$/.test(otp)) return setSignupError("Enter a valid 6-digit OTP.");
+      const otpStore = getOtpStore();
+      const pending = otpStore[email];
+      if (!pending || pending.purpose !== "signup") return setSignupError("Request OTP first.");
+      if (pending.expiresAt < Date.now()) return setSignupError("OTP expired. Request a new OTP.");
+      if (pending.otp !== otp) return setSignupError("Invalid OTP.");
 
-        // ✅ Save email + profile locally
-        setCurrentUserEmail(email);
-        setCurrentUserProfile({ name, email, dob });
-
-        alert("Signup successful!");
-        window.location.href = "dashboard.html";
-
-      } catch (err) {
-        console.error(err);
-        alert("Network error during signup.");
+      const users = getUsers();
+      if (users.some((user) => user.email === email)) {
+        return setSignupError("Email already exists. Please login.");
       }
+
+      const newUser = {
+        name: pending.payload.name,
+        email,
+        password: pending.payload.password,
+        dob: pending.payload.dob,
+        role: email.includes("admin") ? "admin" : "user",
+      };
+      users.push(newUser);
+      setUsers(users);
+      delete otpStore[email];
+      setOtpStore(otpStore);
+
+      setCurrentUserEmail(email);
+      setCurrentUserProfile({ name: newUser.name, email, dob: newUser.dob });
+
+      if (typeof window.loginUser === "function") {
+        window.loginUser(newUser);
+        return;
+      }
+      window.location.href = "dashboard.html";
     });
   }
 
   // Login
   const loginForm = document.querySelector("form#login-form");
   if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
+    const loginError = document.getElementById("login-error");
+    const sendLoginOtpBtn = document.getElementById("send-login-otp");
+    const setLoginError = (message, ok = false) => {
+      if (!loginError) return;
+      loginError.textContent = message || "";
+      loginError.style.color = ok ? "#0c8a43" : "#d93025";
+    };
+
+    if (sendLoginOtpBtn) {
+      sendLoginOtpBtn.addEventListener("click", () => {
+        const formData = new FormData(loginForm);
+        const email = String(formData.get("email") || "").trim().toLowerCase();
+        const password = String(formData.get("password") || "");
+        if (!validEmail(email)) return setLoginError("Enter a valid email address.");
+        if (!password) return setLoginError("Password is required.");
+        const user = getUsers().find((entry) => entry.email === email);
+        if (!user) return setLoginError("Account not found. Please sign up first.");
+        if (user.password !== password) return setLoginError("Incorrect password.");
+
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+        const otpStore = getOtpStore();
+        otpStore[email] = {
+          otp,
+          purpose: "login",
+          expiresAt: Date.now() + 5 * 60 * 1000,
+        };
+        setOtpStore(otpStore);
+        console.log(`[SuSwastha OTP][LOGIN] ${email}: ${otp}`);
+        setLoginError("OTP generated (check browser console).", true);
+      });
+    }
+
+    loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const formData = new FormData(loginForm);
-      const email = formData.get("email");
-      const password = formData.get("password");
+      const email = String(formData.get("email") || "").trim().toLowerCase();
+      const otp = String(formData.get("otp") || "").trim();
 
-      try {
-        const res = await fetch(`${API_BASE}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        });
-        if (!res.ok) {
-          const msg = await res.text();
-          alert("Login failed: " + msg);
-          return;
-        }
+      if (!validEmail(email)) return setLoginError("Enter a valid email address.");
+      if (!/^\d{6}$/.test(otp)) return setLoginError("Enter a valid 6-digit OTP.");
 
-        // ✅ Save email and make sure profile at least has email
-        setCurrentUserEmail(email);
-        const existingProfile = getCurrentUserProfile() || {};
-        setCurrentUserProfile({ ...existingProfile, email });
+      const otpStore = getOtpStore();
+      const pending = otpStore[email];
+      if (!pending || pending.purpose !== "login") return setLoginError("Request OTP first.");
+      if (pending.expiresAt < Date.now()) return setLoginError("OTP expired. Request a new OTP.");
+      if (pending.otp !== otp) return setLoginError("Invalid OTP.");
 
-        alert("Login successful!");
-        window.location.href = "dashboard.html";
+      const user = getUsers().find((entry) => entry.email === email);
+      if (!user) return setLoginError("Account not found.");
 
-      } catch (err) {
-        console.error(err);
-        alert("Network error during login.");
+      delete otpStore[email];
+      setOtpStore(otpStore);
+      setCurrentUserEmail(email);
+      setCurrentUserProfile({ name: user.name || "", dob: user.dob || "", email });
+
+      if (typeof window.loginUser === "function") {
+        window.loginUser(user);
+        return;
       }
+      window.location.href = "dashboard.html";
     });
   }
 }
@@ -634,48 +758,32 @@ function setupDashboardReports() {
   const lastTestEl = document.getElementById("dashboard-last-test");
   const lastStatusEl = document.getElementById("dashboard-last-status");
 
-  // ✅ Load reports for this logged-in email
-  fetch(`${API_BASE}/api/user/reports?email=${encodeURIComponent(email)}`)
-    .then((res) => res.json())
-    .then((data) => {
-      if (!Array.isArray(data) || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4">No reports found yet.</td></tr>`;
-        if (savedCountEl) savedCountEl.textContent = "0 total reports";
-        if (savedBadgeEl) savedBadgeEl.textContent = "No reports yet";
-        if (lastTestEl) lastTestEl.textContent = "Last test: -";
-        if (lastStatusEl) lastStatusEl.textContent = "Status: -";
-        return;
-      }
+  const data = getReportsForEmail(email).sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (!Array.isArray(data) || data.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4">No reports found yet.</td></tr>`;
+    if (savedCountEl) savedCountEl.textContent = "0 total reports";
+    if (savedBadgeEl) savedBadgeEl.textContent = "No reports yet";
+    if (lastTestEl) lastTestEl.textContent = "Last test: -";
+    if (lastStatusEl) lastStatusEl.textContent = "Status: -";
+    return;
+  }
 
-      // ✅ Fill summary cards
-      if (savedCountEl) savedCountEl.textContent = `${data.length} total reports`;
-      if (savedBadgeEl) savedBadgeEl.textContent = "Updated just now";
+  if (savedCountEl) savedCountEl.textContent = `${data.length} total reports`;
+  if (savedBadgeEl) savedBadgeEl.textContent = "Updated just now";
 
-      const latest = data[0]; // already sorted desc by created_at in backend
-      if (lastTestEl) lastTestEl.textContent = `Last test: ${latest.created_at}`;
-      if (lastStatusEl) lastStatusEl.textContent = `Status: ${latest.label}`;
+  const latest = data[0];
+  if (lastTestEl) lastTestEl.textContent = `Last test: ${latest.date || "-"}`;
+  if (lastStatusEl) lastStatusEl.textContent = `Status: ${latest.result || "-"}`;
 
-      // ✅ Fill table
-      tbody.innerHTML = data
-        .map(
-          (row) => `
-        <tr>
-          <td>${row.test_type}</td>
-          <td>${row.created_at}</td>
-          <td><span class="badge">${row.label}</span></td>
-          <td>${
-            row.pdf_url
-              ? `<a href="${API_BASE}${row.pdf_url}" target="_blank">Download</a>`
-              : "-"
-          }</td>
-        </tr>`
-        )
-        .join("");
-    })
-    .catch((err) => {
-      console.error(err);
-      tbody.innerHTML = `<tr><td colspan="4">Failed to load reports.</td></tr>`;
-      if (savedCountEl) savedCountEl.textContent = "—";
-      if (savedBadgeEl) savedBadgeEl.textContent = "Error loading reports";
-    });
+  tbody.innerHTML = data
+    .map(
+      (row) => `
+      <tr>
+        <td>${row.test || row.test_type || "-"}</td>
+        <td>${row.date || "-"}</td>
+        <td><span class="badge">${row.result || row.label || "-"}</span></td>
+        <td>-</td>
+      </tr>`
+    )
+    .join("");
 }
