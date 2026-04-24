@@ -1,33 +1,35 @@
 :root {
-  --bg: #060814;
-  --surface: #0f172a;
-  --surface-secondary: #18213c;
-  --primary: #8b5cf6;
-  --primary-dark: #6d28d9;
-  --accent: #f472b6;
-  --accent-dark: #db2777;
-  --text: #f8fafc;
-  --muted: #b9c3de;
-  --border: rgba(148, 163, 184, 0.35);
-  --card-shadow: 0 35px 65px rgba(6, 8, 20, 0.6);
-  --gradient-hero: linear-gradient(135deg, #7c3aed, #ec4899);
-  --gradient-card: linear-gradient(145deg, rgba(124, 58, 237, 0.15), rgba(236, 72, 153, 0.08));
+  --primary: #16a34a;
+  --secondary: #84cc16;
+  --accent: #facc15;
+  --bg: #f0fdf4;
+  --text: #14532d;
+  --surface: #ffffff;
+  --surface-secondary: #dcfce7;
+  --primary-dark: #15803d;
+  --accent-dark: #eab308;
+  --muted: #166534;
+  --border: rgba(22, 163, 74, 0.22);
+  --card-shadow: 0 10px 28px rgba(20, 83, 45, 0.1);
+  --gradient-hero: linear-gradient(135deg, rgba(22, 163, 74, 0.15), rgba(132, 204, 22, 0.12));
+  --gradient-card: linear-gradient(145deg, rgba(22, 163, 74, 0.05), rgba(132, 204, 22, 0.07));
 }
 
 body.dark {
-  --bg: #f6f9fc;
+  --primary: #16a34a;
+  --secondary: #84cc16;
+  --accent: #facc15;
+  --bg: #f0fdf4;
+  --text: #14532d;
   --surface: #ffffff;
-  --surface-secondary: #eef1ff;
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --accent: #f97316;
-  --accent-dark: #ea580c;
-  --text: #0f172a;
-  --muted: #475569;
-  --border: rgba(15, 23, 42, 0.12);
-  --card-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
-  --gradient-hero: linear-gradient(135deg, #2563eb, #f97316);
-  --gradient-card: linear-gradient(145deg, rgba(37, 99, 235, 0.15), rgba(249, 115, 22, 0.08));
+  --surface-secondary: #dcfce7;
+  --primary-dark: #15803d;
+  --accent-dark: #eab308;
+  --muted: #166534;
+  --border: rgba(22, 163, 74, 0.22);
+  --card-shadow: 0 10px 28px rgba(20, 83, 45, 0.1);
+  --gradient-hero: linear-gradient(135deg, rgba(22, 163, 74, 0.15), rgba(132, 204, 22, 0.12));
+  --gradient-card: linear-gradient(145deg, rgba(22, 163, 74, 0.05), rgba(132, 204, 22, 0.07));
 }
 
 *,
@@ -42,8 +44,8 @@ body {
   color: var(--text);
   background: var(--bg);
   line-height: 1.6;
-  background-image: radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.25), transparent 40%),
-    radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.25), transparent 45%);
+  background-image: radial-gradient(circle at 20% 20%, rgba(132, 204, 22, 0.14), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(22, 163, 74, 0.12), transparent 45%);
 }
 
 a {
@@ -69,9 +71,9 @@ img {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 5vw;
-  background: rgba(15, 23, 42, 0.88);
+  background: var(--primary);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .logo {
@@ -79,7 +81,11 @@ img {
   font-size: 1.25rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: #ffffff;
+}
+
+.top-bar .nav-links a {
+  color: #ffffff;
 }
 
 .nav-links {
@@ -102,7 +108,7 @@ img {
   height: 2px;
   border-radius: 999px;
   transform: scaleX(0);
-  background: var(--accent);
+  background: var(--secondary);
   transition: transform 0.2s ease;
 }
 
@@ -119,7 +125,7 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: 10px;
   padding: 0.55rem 1.5rem;
   font-weight: 600;
   border: 1px solid transparent;
@@ -129,12 +135,13 @@ img {
 .btn.primary {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.25);
 }
 
 .btn.primary:hover {
-  background: var(--primary-dark);
-  box-shadow: 0 15px 35px rgba(139, 92, 246, 0.5);
+  background: var(--secondary);
+  color: #14532d;
+  box-shadow: 0 10px 24px rgba(132, 204, 22, 0.35);
 }
 
 .btn.ghost {
@@ -237,14 +244,14 @@ main {
 .module-section {
   margin: 4rem 0;
   background: var(--surface-secondary);
-  border-radius: 32px;
+  border-radius: 12px;
   padding: 3rem;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2.5rem;
   align-items: center;
   box-shadow: var(--card-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
 }
 
 .module-text h2 {
@@ -269,9 +276,9 @@ main {
 
 .module-card {
   background: var(--surface);
-  border-radius: 24px;
+  border-radius: 12px;
   padding: 1.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
   background-image: var(--gradient-card);
 }
@@ -293,9 +300,9 @@ main {
 
 .stat-card {
   background: var(--surface);
-  border-radius: 26px;
+  border-radius: 12px;
   padding: 1.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
 }
 
@@ -329,9 +336,9 @@ main {
   justify-content: space-between;
   align-items: center;
   background: var(--surface);
-  border-radius: 24px;
+  border-radius: 12px;
   padding: 1.5rem 1.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
 }
 
@@ -347,9 +354,9 @@ main {
   gap: 0.35rem;
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
-  background: rgba(139, 92, 246, 0.15);
-  color: var(--accent);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(132, 204, 22, 0.2);
+  color: var(--text);
+  border: 1px solid rgba(132, 204, 22, 0.35);
   font-size: 0.85rem;
   font-weight: 600;
 }
@@ -381,9 +388,9 @@ main {
 .service-card {
   background: var(--surface);
   padding: 1.75rem;
-  border-radius: 28px;
+  border-radius: 12px;
   box-shadow: var(--card-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
 }
@@ -431,7 +438,7 @@ main {
 
 .contact-form {
   background: var(--surface);
-  border-radius: 24px;
+  border-radius: 12px;
   padding: 2rem;
   max-width: 780px;
   margin: 0 auto;
@@ -472,8 +479,13 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.module-header .logo,
+.module-header .nav-links a {
+  color: #ffffff;
 }
 
 .module-header nav {
@@ -519,10 +531,10 @@ main {
 
 .test-info {
   background: var(--surface);
-  border-radius: 32px;
+  border-radius: 12px;
   padding: 2.25rem;
   box-shadow: var(--card-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
 }
 
 .test-info img {
@@ -532,10 +544,10 @@ main {
 
 .test-form-card {
   background: var(--surface);
-  border-radius: 32px;
+  border-radius: 12px;
   padding: 2.25rem;
   box-shadow: var(--card-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
 }
 
 .test-form {
@@ -565,8 +577,8 @@ main {
   margin-top: 1.5rem;
   padding: 1.25rem;
   border-radius: 18px;
-  border: 1px dashed var(--accent);
-  background: rgba(244, 114, 182, 0.08);
+  border: 1px dashed var(--primary);
+  background: rgba(22, 163, 74, 0.06);
 }
 
 .back-link {
@@ -586,7 +598,7 @@ main {
 
 .report-card {
   background: var(--surface);
-  border-radius: 24px;
+  border-radius: 12px;
   padding: 2rem;
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border);
@@ -622,10 +634,10 @@ main {
 
 .history-table {
   background: var(--surface);
-  border-radius: 26px;
+  border-radius: 12px;
   padding: 2.5rem;
   box-shadow: var(--card-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
 }
 
 .history-table table {
@@ -658,9 +670,9 @@ main {
 
 .admin-card {
   background: var(--surface);
-  border-radius: 26px;
+  border-radius: 12px;
   padding: 1.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
 }
 
@@ -682,7 +694,7 @@ main {
 
 .contact-card {
   background: var(--surface);
-  border-radius: 22px;
+  border-radius: 12px;
   padding: 2rem;
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border);
@@ -701,10 +713,10 @@ main {
 }
 
 .callout {
-  background: rgba(26, 143, 227, 0.08);
-  border-radius: 18px;
+  background: rgba(132, 204, 22, 0.12);
+  border-radius: 12px;
   padding: 1.5rem;
-  border: 1px dashed var(--primary);
+  border: 1px dashed var(--secondary);
 }
 
 [data-animate] {
@@ -861,7 +873,7 @@ body.dark .chatbot-message {
 }
 
 .auth-visual {
-  background: #0b2447;
+  background: var(--primary);
   color: #fff;
   padding: 4rem 3rem;
   display: flex;
@@ -919,7 +931,7 @@ body.dark .chatbot-message {
 }
 
 .sidebar {
-  background: #0f172a;
+  background: var(--primary);
   color: #fff;
   padding: 2.5rem 1.75rem;
   display: flex;
@@ -958,7 +970,7 @@ body.dark .chatbot-message {
 
 .dashboard-card {
   background: var(--surface);
-  border-radius: 18px;
+  border-radius: 12px;
   padding: 1.5rem;
   border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
@@ -966,7 +978,7 @@ body.dark .chatbot-message {
 
 .reports-table {
   background: var(--surface);
-  border-radius: 18px;
+  border-radius: 12px;
   padding: 1.5rem;
   box-shadow: var(--card-shadow);
   border: 1px solid var(--border);
@@ -989,7 +1001,7 @@ body.dark .chatbot-message {
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   font-size: 0.85rem;
-  background: rgba(26, 143, 227, 0.12);
+  background: rgba(132, 204, 22, 0.2);
   color: var(--primary);
   font-weight: 600;
 }
@@ -1056,7 +1068,7 @@ body.dark .chatbot-message {
 }
 
 .icon-btn:hover {
-  background: rgba(148, 163, 184, 0.25);
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
 }
 
@@ -1121,11 +1133,7 @@ body.dark .chatbot-message {
   justify-content: space-between;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(
-    to right,
-    rgba(139, 92, 246, 0.15),
-    rgba(236, 72, 153, 0.1)
-  );
+  background: linear-gradient(to right, rgba(22, 163, 74, 0.15), rgba(132, 204, 22, 0.15));
 }
 
 .ask-header h3 {
@@ -1137,7 +1145,7 @@ body.dark .chatbot-message {
   padding: 0.75rem 0.9rem;
   flex: 1;
   overflow-y: auto;
-  background: rgba(15, 23, 42, 0.2);
+  background: rgba(22, 163, 74, 0.06);
 }
 
 .msg {
@@ -1150,8 +1158,8 @@ body.dark .chatbot-message {
 }
 
 .msg-bot {
-  background: rgba(37, 99, 235, 0.18);
-  border: 1px solid rgba(37, 99, 235, 0.35);
+  background: rgba(132, 204, 22, 0.2);
+  border: 1px solid rgba(132, 204, 22, 0.35);
   align-self: flex-start;
 }
 
@@ -1193,5 +1201,20 @@ body.dark .chatbot-message {
 
 /* Small tweak in light mode (body.dark in your design) */
 body.dark .ask-messages {
-  background: #f8fafc;
+  background: rgba(22, 163, 74, 0.06);
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus,
+.test-form input:focus,
+.test-form select:focus,
+.report-form input:focus,
+.report-form select:focus,
+.report-form textarea:focus,
+.auth-panel input:focus,
+.chatbot-form input:focus,
+.ask-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
 }
