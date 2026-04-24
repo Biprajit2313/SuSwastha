@@ -35,6 +35,15 @@
           <input type="password" name="password" required />
         </label>
 
+        <button type="button" class="btn ghost" id="send-login-otp">Send OTP</button>
+
+        <label>
+          Enter OTP
+          <input type="text" name="otp" maxlength="6" inputmode="numeric" required />
+        </label>
+
+        <p class="muted" id="login-error" style="min-height: 20px"></p>
+
         <div class="form-links">
           <label>
             <input type="checkbox" /> Remember me
@@ -42,7 +51,7 @@
           <a href="forgot-password.html">Forgot password?</a>
         </div>
 
-        <button type="submit" class="btn primary">Login</button>
+        <button type="submit" class="btn primary">Verify OTP & Login</button>
       </form>
 
       <p>
@@ -52,6 +61,7 @@
     </section>
 
     <!-- ✅ Script for login handling -->
+    <script src="auth.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
