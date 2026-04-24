@@ -11,6 +11,7 @@
     "signup.html",
     "about.html",
     "contact-about.html",
+    "forgot-password.html",
   ];
 
   function getCurrentPage() {
@@ -106,6 +107,7 @@
     var logoutLinks = Array.prototype.slice.call(
       document.querySelectorAll('[data-auth="logout"]')
     );
+    var navMenus = Array.prototype.slice.call(document.querySelectorAll(".nav-links"));
 
     loginLinks.forEach(function (el) {
       el.style.display = loggedIn ? "none" : "";
@@ -139,6 +141,28 @@
         container.appendChild(logout);
       } else {
         hasLogout.style.display = loggedIn ? "" : "none";
+      }
+    });
+
+    navMenus.forEach(function (nav) {
+      var hasProfile = nav.querySelector('a[href="profile.html"]');
+      var hasScan = nav.querySelector('a[href="scan.html"]');
+      if (!hasProfile) {
+        var profileLink = createNavAnchor("", "profile.html", "Profile");
+        profileLink.setAttribute("data-auth-link", "protected");
+        profileLink.style.display = loggedIn ? "" : "none";
+        nav.appendChild(profileLink);
+      } else {
+        hasProfile.style.display = loggedIn ? "" : "none";
+      }
+
+      if (!hasScan) {
+        var scanLink = createNavAnchor("", "scan.html", "Scan Report");
+        scanLink.setAttribute("data-auth-link", "protected");
+        scanLink.style.display = loggedIn ? "" : "none";
+        nav.appendChild(scanLink);
+      } else {
+        hasScan.style.display = loggedIn ? "" : "none";
       }
     });
 
